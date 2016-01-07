@@ -1,0 +1,39 @@
+AFL+BPF
+
+This runs american fuzzy lop on the Linux kernel's BPF JIT in a user space
+harness.
+
+Setup:
+
+First, point init.sh to your kernel source.  Note that this will patch the tree
+so make sure it's clean.  The patch has been tested with v4.4-rc8.
+
+$ ./init.sh /path/to/kernel/source
+
+Build and fuzz:
+
+$ make
+$ afl-fuzz -i testcases -o findings ./main-afl
+
+For non-x86 architectures, build with ARCH= instead and run the runner under
+qemu before you start afl-fuzz.  arm and arm64 are currently supported.
+
+$ make ARCH=arm
+$ qemu-arm ./runner &
+$ afl-fuzz -i testcases -o findings ./main-afl
+
+Debug and analyze:
+
+main-native can be run under QEMU to test individual cases without the
+main<->runner split:
+
+$ qemu-arm ./main-native < testcases/input
+
+Passing any argument to the runner or main or main-native will enable debug
+prints.
+
+For analysis of failing testcases, you can get a .pcap out of the skbs, dump
+the input, and use bpf_dbg from the kernel's tools/net/bpf:
+
+$ ./skbs2pcap
+$ ./dump testcases/input | bpf_dbg /dev/stdin

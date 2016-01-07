@@ -1,0 +1,14 @@
+*.swp
+*.swo
+cscope.*
+tags
+skbs.h
+skbs.pcap
+findings
+main
+main-afl
+main-native
+runner
+runner-syms
+dump
+skbs2pcap
